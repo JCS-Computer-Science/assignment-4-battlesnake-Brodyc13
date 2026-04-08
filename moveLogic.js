@@ -99,12 +99,18 @@ export default function move(gameState){
 
 
  
+let allSnakes = gameState.board.snakes
 
+    for(let j =0; j<allSnakes.length;j++){
 
-   
+        let snake = allSnakes[j].body
+         if(myHead.x==snake[0].x+1 && myHead.y==snake[0].y+1 && )
+
+    }
 
     //go for food 
     let food = gameState.board.food[1]
+   
 
     if(myHead.x < food.x && moveSafety.right==true){
         return{move: "right"}
