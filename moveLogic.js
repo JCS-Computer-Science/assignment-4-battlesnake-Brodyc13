@@ -9,6 +9,7 @@ export default function move(gameState){
     // We've included code to prevent your Battlesnake from moving backwards
     const myHead = gameState.you.body[0];
     const myNeck = gameState.you.body[1];
+     let hazards = gameState.board.hazards
     
     if (myNeck.x < myHead.x) {        // Neck is left of head, don't move left
         moveSafety.left = false;
@@ -96,17 +97,49 @@ export default function move(gameState){
         
 
     }
+ /*   floodFill(1,myHead,)
+    //floodfill
+    function floodFill(direction, start) {
+        let queue = [start];
+       let counter = 0
+        
+       while(queue.length>0){ {
+            let current = queue[i];
+            let neighbors = getNeighbors(current);
 
-
- 
-let allSnakes = gameState.board.snakes
-
-    for(let j =0; j<allSnakes.length;j++){
-
-        let snake = allSnakes[j].body
-         if(myHead.x==snake[0].x+1 && myHead.y==snake[0].y+1 && )
-
+            for(let j = 0; j<neighbors.length;j++){
+                queue.push(neighbors[j])
+                counter++
+            }
+            queue.pop(current)
+            counter--
+        }
+        return counter
     }
+
+
+    
+       function getNeighbors(current) {
+        
+        let neighbors = [];
+        neighbors.push({ x: current.x + 1, y: current.y }); // right
+        neighbors.push({ x: current.x - 1, y: current.y }); // left
+        neighbors.push({ x: current.x, y: current.y + 1 }); // up
+        neighbors.push({ x: current.x, y: current.y - 1 }); // down
+
+        for(let i =0 ;i<neighbors.length;i++){
+            for(let j =0; j<hazards.length;j++){
+            if(neighbors[i].x==hazards[j].x && neighbors[i].y==hazards[j].y){
+                neighbors.splice(i,1)
+            }
+        }
+        return neighbors
+        }
+    }
+    
+*/
+
+
 
     //go for food 
     let food = gameState.board.food[1]
