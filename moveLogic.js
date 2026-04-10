@@ -53,17 +53,17 @@ export default function move(gameState){
     // https://docs.battlesnake.com/api/objects/battlesnake
    let battlesnake = gameState.you.body
     
-    for(let i =1; i<battlesnake.length;i++){
-        if(myHead.x ==battlesnake[i].x-1 &&myHead.y == battlesnake[i].y){
+    for(let i =1; i<battlesnake.length-1;i++){
+        if(myHead.x+1 ==battlesnake[i].x &&myHead.y == battlesnake[i].y){
             moveSafety.right=false
         }
-         if(myHead.x ==battlesnake[i].x+1 && myHead.y == battlesnake[i].y){
+         if(myHead.x-1 ==battlesnake[i].x && myHead.y == battlesnake[i].y){
             moveSafety.left=false
         }
-         if(myHead.y ==battlesnake[i].y-1 && myHead.x == battlesnake[i].x){
+         if(myHead.y+1 ==battlesnake[i].y && myHead.x == battlesnake[i].x){
             moveSafety.up=false
         }
-         if(myHead.y ==battlesnake[i].y+1 && myHead.x == battlesnake[i].x){
+         if(myHead.y-1 ==battlesnake[i].y && myHead.x == battlesnake[i].x){
             moveSafety.down=false
         }
 }
@@ -79,16 +79,16 @@ export default function move(gameState){
         let snake = allSnakes[j].body
 
         for(let i =1; i<snake.length;i++){
-        if(myHead.x ==snake[i].x-1 &&myHead.y == snake[i].y){
+        if(myHead.x+1 ==snake[i].x &&myHead.y == snake[i].y){
             moveSafety.right=false
         }
-         if(myHead.x ==snake[i].x+1 && myHead.y == snake[i].y){
+         if(myHead.x-1 ==snake[i].x && myHead.y == snake[i].y){
             moveSafety.left=false
         }
-         if(myHead.y ==snake[i].y-1 && myHead.x == snake[i].x){
+         if(myHead.y+1 ==snake[i].y && myHead.x == snake[i].x){
             moveSafety.up=false
         }
-         if(myHead.y ==snake[i].y+1 && myHead.x == snake[i].x){
+         if(myHead.y-1 ==snake[i].y && myHead.x == snake[i].x){
             moveSafety.down=false
         }
         }
@@ -98,60 +98,104 @@ export default function move(gameState){
 
     }
  /*   floodFill(1,myHead,)
+
     //floodfill
     function floodFill(direction, start) {
         let queue = [start];
        let counter = 0
+       let visited = new Set();
+       
         
-       while(queue.length>0){ {
-            let current = queue[i];
+       while(queue.length>0){ 
+            let current = queue.shift();
+            let key = `${start.x},${start.y}`
+
+         if(visited.has(key)){
+            counter++
+        }
+
+
+
             let neighbors = getNeighbors(current);
 
-            for(let j = 0; j<neighbors.length;j++){
-                queue.push(neighbors[j])
-                counter++
+            for(let neighbors of neighbors){
+                let neighborKey = `${neighbors.x},${neighbors.y}`
+                if(!visited.has(neighborKey)){
+                    queue.push(neighbors)
+                }
+                
             }
-            queue.pop(current)
-            counter--
+            
         }
         return counter
+    
     }
-
 
     
        function getNeighbors(current) {
         
         let neighbors = [];
+        let compareNeighbors = [];
         neighbors.push({ x: current.x + 1, y: current.y }); // right
         neighbors.push({ x: current.x - 1, y: current.y }); // left
         neighbors.push({ x: current.x, y: current.y + 1 }); // up
         neighbors.push({ x: current.x, y: current.y - 1 }); // down
 
-        for(let i =0 ;i<neighbors.length;i++){
-            for(let j =0; j<hazards.length;j++){
-            if(neighbors[i].x==hazards[j].x && neighbors[i].y==hazards[j].y){
-                neighbors.splice(i,1)
-            }
-        }
-        return neighbors
+       let returnNeighbors = [];
+
+for (let i = 0; i < neighbors.length; i++) {
+    let isHazard = false;
+
+    for (let j = 0; j < hazards.length; j++) {
+        if (neighbors[i].x === hazards[j].x && neighbors[i].y === hazards[j].y) {
+            isHazard = true;
+            break;
         }
     }
+
+    if (!isHazard) {
+        returnNeighbors.push(neighbors[i]);
+    }
+}
+    
+
+        
+        
+
+    }
+
     
 */
 
 
 
     //go for food 
-    let food = gameState.board.food[1]
+    let foods = gameState.board.food
+    // Find closest food
+let closestFood = foods[0];
+let minDistance = Math.abs(myHead.x - closestFood.x) + Math.abs(myHead.y - closestFood.y);
+
+for (let i = 1; i < foods.length; i++) {
+    let dist = Math.abs(myHead.x - foods[i].x) + Math.abs(myHead.y - foods[i].y);
+    if (dist < minDistance) {
+        minDistance = dist;
+        closestFood = foods[i];
+    }
+}
+
+
    
 
-    if(myHead.x < food.x && moveSafety.right==true){
+    if(myHead.x < closestFood.x && moveSafety.right==true){
         return{move: "right"}
-    } else if(myHead.x > food.x && moveSafety.left==true){
+    } 
+     if(myHead.x > closestFood.x && moveSafety.left==true){
         return{move: "left"}
-    }else if(myHead.y > food.y && moveSafety.down==true){
+    }
+     if(myHead.y > closestFood.y && moveSafety.down==true){
         return{move: "down"}
-    }else if(myHead.y < food.y && moveSafety.up==true){
+    }
+     if(myHead.y < closestFood.y && moveSafety.up==true){
         return{move: "up"}
     }
     
