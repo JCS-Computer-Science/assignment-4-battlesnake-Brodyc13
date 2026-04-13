@@ -73,10 +73,12 @@ export default function move(gameState){
     // gameState.board.snakes contains an array of enemy snake objects, which includes their coordinates
     // https://docs.battlesnake.com/api/objects/battlesnake
     let allSnakes = gameState.board.snakes
+    let dangers = []
 
     for(let j =0; j<allSnakes.length;j++){
 
         let snake = allSnakes[j].body
+        dangers.push(snake[j]) 
 
         for(let i =1; i<snake.length;i++){
         if(myHead.x+1 ==snake[i].x &&myHead.y == snake[i].y){
@@ -97,45 +99,125 @@ export default function move(gameState){
         
 
     }
- /*   floodFill(1,myHead,)
+    
+ /*   for(let i =0; i<gameState.board.width;i++){
+        dangers.push({x:i,y:0})
+        dangers.push({x:i,y:gameState.board.height-1})
+    }
 
+    for(let i =0; i<gameState.board.height;i++){
+        dangers.push({x:0,y:i})
+        dangers.push({x:gameState.board.width,y:i})
+    }
+let floodFillstart = 0
+
+function floodfillcheck(){
+
+
+  let count = 0;
+
+    for (let d of dangers) {
+        let dx = Math.abs(d.x - myHead.x);
+        let dy = Math.abs(d.y - myHead.y);
+
+        // includes diagonals
+        if (dx <= 1 && dy <= 1) {
+            count++;
+        }
+    }
+
+    return count;
+} //ai to optimize 
+
+floodfillcheck()
+
+if(floodFillstart >=3){
+    let right = 0
+    let left = 0
+    let up = 0
+    let down = 0
+    console.log("floodfillcheck")
+    if(moveSafety.right==true){
+       right = floodFill("right")
+    }
+    if(moveSafety.left==true){
+         left = floodFill("left")
+    }
+    if(moveSafety.up==true){
+        up = floodFill("up")
+    }
+    if(moveSafety.down==true){
+        down = floodFill("down")
+    }
+
+    if(right>=left && right>=up && right>=down){
+        console.log("floodfillright")
+        return{move: "right"}
+    } 
+     if(left>=right && left>=up && left>=down){
+        console.log("floodfillleft")
+        return{move: "left"}
+    } 
+     if(up>=right && up>=left && up>=down){
+        console.log("floodfillup")
+        return{move: "up"}
+    } 
+     if(down>=right && down>=left && down>=up){
+        console.log("floodfilldown")
+        return{move: "down"}
+        
+    }
+
+}
     //floodfill
-    function floodFill(direction, start) {
-        let queue = [start];
+    function floodFill(direction) {
+    let queue = [];
        let counter = 0
        let visited = new Set();
-       
+       if(direction == "right"){
+        queue.push({x:myHead.x+1,y:myHead.y})
+       }
+       if(direction == "left"){
+        queue.push({x:myHead.x-1,y:myHead.y})
+       }
+       if(direction == "up"){
+        queue.push({x:myHead.x,y:myHead.y+1})
+       }
+       if(direction == "down"){
+        queue.push({x:myHead.x,y:myHead.y-1})
+       }
         
        while(queue.length>0){ 
             let current = queue.shift();
-            let key = `${start.x},${start.y}`
+            let key = `${current.x},${current.y}`
 
          if(visited.has(key)){
-            counter++
+            continue;
+            
         }
-
+        visited.add(key);
+        counter++;
 
 
             let neighbors = getNeighbors(current);
 
-            for(let neighbors of neighbors){
-                let neighborKey = `${neighbors.x},${neighbors.y}`
+            for(let neighbor of neighbors){
+                let neighborKey = `${neighbor.x},${neighbor.y}`
                 if(!visited.has(neighborKey)){
-                    queue.push(neighbors)
+                    queue.push(neighbor)
                 }
                 
             }
             
         }
-        return counter
+        
     
     }
 
-    
        function getNeighbors(current) {
         
         let neighbors = [];
-        let compareNeighbors = [];
+       
         neighbors.push({ x: current.x + 1, y: current.y }); // right
         neighbors.push({ x: current.x - 1, y: current.y }); // left
         neighbors.push({ x: current.x, y: current.y + 1 }); // up
@@ -143,34 +225,29 @@ export default function move(gameState){
 
        let returnNeighbors = [];
 
-for (let i = 0; i < neighbors.length; i++) {
-    let isHazard = false;
 
-    for (let j = 0; j < hazards.length; j++) {
-        if (neighbors[i].x === hazards[j].x && neighbors[i].y === hazards[j].y) {
-            isHazard = true;
-            break;
+
+    for (let neighbor of neighbors) {
+        let isHazard = false;
+        for (let hazard of dangers) {
+            if (neighbor.x === hazard.x && neighbor.y === hazard.y) {
+                isHazard = true;
+                break;
+            }
+        }
+
+        if (!isHazard) {
+            returnNeighbors.push(neighbor);
         }
     }
 
-    if (!isHazard) {
-        returnNeighbors.push(neighbors[i]);
-    }
+    return returnNeighbors;
 }
-    
-
-        
-        
-
-    }
-
-    
 */
-
-
-
     //go for food 
     let foods = gameState.board.food
+    
+   
     // Find closest food
 let closestFood = foods[0];
 let minDistance = Math.abs(myHead.x - closestFood.x) + Math.abs(myHead.y - closestFood.y);
@@ -187,15 +264,19 @@ for (let i = 1; i < foods.length; i++) {
    
 
     if(myHead.x < closestFood.x && moveSafety.right==true){
+        console.log(`MOVE ${gameState.turn}: rightfood`)
         return{move: "right"}
     } 
      if(myHead.x > closestFood.x && moveSafety.left==true){
+        console.log(`MOVE ${gameState.turn}: leftfood`)
         return{move: "left"}
     }
      if(myHead.y > closestFood.y && moveSafety.down==true){
+            console.log(`MOVE ${gameState.turn}: downfood`)
         return{move: "down"}
     }
      if(myHead.y < closestFood.y && moveSafety.up==true){
+         console.log(`MOVE ${gameState.turn}: upfood`)
         return{move: "up"}
     }
     
