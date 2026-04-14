@@ -78,7 +78,10 @@ export default function move(gameState){
     for(let j =0; j<allSnakes.length;j++){
 
         let snake = allSnakes[j].body
-        dangers.push(snake[j]) 
+        for (let segment of snake) {
+            dangers.push(segment)
+        }
+        
 
         for(let i =1; i<snake.length;i++){
         if(myHead.x+1 ==snake[i].x &&myHead.y == snake[i].y){
@@ -100,16 +103,8 @@ export default function move(gameState){
 
     }
     
- /*   for(let i =0; i<gameState.board.width;i++){
-        dangers.push({x:i,y:0})
-        dangers.push({x:i,y:gameState.board.height-1})
-    }
+   
 
-    for(let i =0; i<gameState.board.height;i++){
-        dangers.push({x:0,y:i})
-        dangers.push({x:gameState.board.width,y:i})
-    }
-let floodFillstart = 0
 
 function floodfillcheck(){
 
@@ -125,18 +120,18 @@ function floodfillcheck(){
             count++;
         }
     }
-
+    
     return count;
 } //ai to optimize 
 
-floodfillcheck()
 
-if(floodFillstart >=3){
+
+if(floodfillcheck() >=3){
     let right = 0
     let left = 0
     let up = 0
     let down = 0
-    console.log("floodfillcheck")
+    
     if(moveSafety.right==true){
        right = floodFill("right")
     }
@@ -151,19 +146,19 @@ if(floodFillstart >=3){
     }
 
     if(right>=left && right>=up && right>=down){
-        console.log("floodfillright")
+        
         return{move: "right"}
     } 
      if(left>=right && left>=up && left>=down){
-        console.log("floodfillleft")
+        
         return{move: "left"}
     } 
      if(up>=right && up>=left && up>=down){
-        console.log("floodfillup")
+        
         return{move: "up"}
     } 
      if(down>=right && down>=left && down>=up){
-        console.log("floodfilldown")
+        
         return{move: "down"}
         
     }
@@ -171,6 +166,7 @@ if(floodFillstart >=3){
 }
     //floodfill
     function floodFill(direction) {
+    let dangerSet = new Set(dangers.map(d => `${d.x},${d.y}`));
     let queue = [];
        let counter = 0
        let visited = new Set();
@@ -191,59 +187,41 @@ if(floodFillstart >=3){
             let current = queue.shift();
             let key = `${current.x},${current.y}`
 
+            
          if(visited.has(key)){
             continue;
             
         }
+         if (  current.x < 0 ||current.x >= gameState.board.width || current.y < 0 ||current.y >= gameState.board.height ) {  
+            continue;
+            }
+            if(dangerSet.has(key)){
+                continue;
+            }
         visited.add(key);
         counter++;
+           queue.push(
+            { x: current.x + 1, y: current.y },
+            { x: current.x - 1, y: current.y },
+            { x: current.x, y: current.y + 1 },
+            { x: current.x, y: current.y - 1 }
+        );
+    
 
-
-            let neighbors = getNeighbors(current);
-
-            for(let neighbor of neighbors){
-                let neighborKey = `${neighbor.x},${neighbor.y}`
-                if(!visited.has(neighborKey)){
-                    queue.push(neighbor)
-                }
-                
-            }
-            
-        }
+        
         
     
     }
-
-       function getNeighbors(current) {
-        
-        let neighbors = [];
+    console.log("count" + counter +"direction" + direction)
+    return counter;
        
-        neighbors.push({ x: current.x + 1, y: current.y }); // right
-        neighbors.push({ x: current.x - 1, y: current.y }); // left
-        neighbors.push({ x: current.x, y: current.y + 1 }); // up
-        neighbors.push({ x: current.x, y: current.y - 1 }); // down
-
-       let returnNeighbors = [];
-
-
-
-    for (let neighbor of neighbors) {
-        let isHazard = false;
-        for (let hazard of dangers) {
-            if (neighbor.x === hazard.x && neighbor.y === hazard.y) {
-                isHazard = true;
-                break;
-            }
-        }
-
-        if (!isHazard) {
-            returnNeighbors.push(neighbor);
-        }
-    }
-
-    return returnNeighbors;
 }
-*/
+
+
+
+
+
+
     //go for food 
     let foods = gameState.board.food
     
@@ -264,19 +242,19 @@ for (let i = 1; i < foods.length; i++) {
    
 
     if(myHead.x < closestFood.x && moveSafety.right==true){
-        console.log(`MOVE ${gameState.turn}: rightfood`)
+        console.log(`MOVE ${gameState.turn}: right`)
         return{move: "right"}
     } 
      if(myHead.x > closestFood.x && moveSafety.left==true){
-        console.log(`MOVE ${gameState.turn}: leftfood`)
+        console.log(`MOVE ${gameState.turn}: left`)
         return{move: "left"}
     }
      if(myHead.y > closestFood.y && moveSafety.down==true){
-            console.log(`MOVE ${gameState.turn}: downfood`)
+            console.log(`MOVE ${gameState.turn}: down`)
         return{move: "down"}
     }
      if(myHead.y < closestFood.y && moveSafety.up==true){
-         console.log(`MOVE ${gameState.turn}: upfood`)
+         console.log(`MOVE ${gameState.turn}: up`)
         return{move: "up"}
     }
     
