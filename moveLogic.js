@@ -1,4 +1,177 @@
+//new move logic using the weighted squares as the logic to determine the best move to make.
 export default function move(gameState){
+    let moveSafety = {
+        up: true,
+        down: true,
+        left: true,
+        right: true
+    };
+
+let board = gameState.board
+let boardarray = []
+function createboardarray(){
+    for(let x=0; x<board.width;x++){
+        for(let y=0; y<board.height;y++){
+            boardarray.push({x:x,y:y,weight:1})
+        }
+     }
+     
+}
+    
+
+
+
+function borderWeight(){
+    for(let segment of boardarray){
+        
+        if(segment.x == 0 || segment.x == board.width-1 || segment.y == 0 || segment.y == board.height-1){
+            segment.weight *= .75
+
+    }
+}
+}
+
+function snakeWeight(){
+    let allSnakes = gameState.board.snakes
+    for(let j =0; j<allSnakes.length;j++){
+ 
+        let snake = allSnakes[j].body
+        for (let segment of snake) {
+            for(let cell of boardarray){
+                if(cell.x == segment.x && cell.y == segment.y){
+                    cell.weight =0
+                }
+                if(cell.x == segment.x+1 && cell.y == segment.y){
+                    cell.weight *= .5
+                }
+                if(cell.x == segment.x-1 && cell.y == segment.y){
+                    cell.weight *= .5
+                }
+                if(cell.x == segment.x && cell.y == segment.y+1){
+                    cell.weight *= .5
+                }
+                if(cell.x == segment.x && cell.y == segment.y-1){
+                    cell.weight *= .5
+                }
+            }
+        }
+    }
+}
+
+function foodWeight(){
+    let foods = gameState.board.food
+    for(let food of foods){
+        for(let cell of boardarray){
+            if(cell.x == food.x && cell.y == food.y){
+                cell.weight += .5
+            }
+        }
+    }
+}
+
+
+function averageWeight(){
+    for(let cell of boardarray){
+        let rightcell = boardarray.find(c => c.x == cell.x+1 && c.y == cell.y)
+        let leftcell = boardarray.find(c => c.x == cell.x-1 && c.y == cell.y)
+        let upcell = boardarray.find(c => c.x == cell.x && c.y == cell.y+1)
+        let downcell = boardarray.find(c => c.x == cell.x && c.y == cell.y-1)
+
+          let rightweight = 0
+        let leftweight = 0
+        let upweight = 0
+        let downweight = 0
+
+        if(rightcell != undefined){
+            rightweight = rightcell.weight
+        }
+        if(leftcell != undefined){
+            leftweight = leftcell.weight
+        }
+        if(upcell != undefined){
+            upweight = upcell.weight
+        }
+        if(downcell != undefined){
+            downweight = downcell.weight
+        }
+
+
+        cell.weight = (cell.weight + rightweight + leftweight + upweight + downweight)/5
+
+    }
+}
+
+function chooseMove(){
+    let myHead = gameState.you.body[0]
+    let rightsqaure = boardarray.find(cell => cell.x == myHead.x+1 && cell.y == myHead.y)
+    let leftsqaure = boardarray.find(cell => cell.x == myHead.x-1 && cell.y == myHead.y)
+    let upsqaure = boardarray.find(cell => cell.x == myHead.x && cell.y == myHead.y+1)
+    let downsqaure = boardarray.find(cell => cell.x == myHead.x && cell.y == myHead.y-1)
+
+    if(rightsqaure == undefined){
+        rightsqaure = {weight:-100}
+    }
+    if(leftsqaure == undefined){
+        leftsqaure = {weight:-100}
+    }
+    if(upsqaure == undefined){
+        upsqaure = {weight:-100}
+    }
+    if(downsqaure == undefined){
+        downsqaure = {weight:-100}
+    }
+
+    let maxWeight = Math.max(rightsqaure.weight,leftsqaure.weight,upsqaure.weight,downsqaure.weight)
+    
+console.log("right" + rightsqaure.weight + "left" + leftsqaure.weight + "up" + upsqaure.weight + "down" + downsqaure.weight)
+console.log("turn " + gameState.turn + " max weight" + maxWeight)
+
+    if(rightsqaure.weight == maxWeight && moveSafety.right ){
+        
+        return {move:"right"}
+    }
+    else if(leftsqaure.weight == maxWeight && moveSafety.left ){
+        
+        return {move:"left"}
+    }
+    else if(upsqaure.weight == maxWeight && moveSafety.up ){
+        
+        return {move:"up"}
+    }
+    else if(downsqaure.weight == maxWeight && moveSafety.down ){
+        
+        return {move:"down"}
+    }
+}
+
+
+createboardarray()
+borderWeight()
+snakeWeight()
+foodWeight()
+averageWeight()
+averageWeight()
+return chooseMove()
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*export default function move(gameState){
     let moveSafety = {
         up: true,
         down: true,
@@ -83,7 +256,7 @@ export default function move(gameState){
         }
         
 
-        for(let i =1; i<snake.length;i++){
+        for(let i =1; i<snake.length-1;i++){
         if(myHead.x+1 ==snake[i].x &&myHead.y == snake[i].y){
             moveSafety.right=false
         }
@@ -102,6 +275,12 @@ export default function move(gameState){
         
 
     }
+
+
+
+
+
+
     
    
 
@@ -218,15 +397,8 @@ if(floodfillcheck() >=3){
 }
 
 
-
-
-
-
     //go for food 
-    let foods = gameState.board.food
-    
-   
-    // Find closest food
+let foods = gameState.board.food
 let closestFood = foods[0];
 let minDistance = Math.abs(myHead.x - closestFood.x) + Math.abs(myHead.y - closestFood.y);
 
@@ -279,3 +451,4 @@ for (let i = 1; i < foods.length; i++) {
     console.log(`MOVE ${gameState.turn}: ${nextMove}`)
     return { move: nextMove };
 }
+    */
