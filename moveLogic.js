@@ -94,7 +94,11 @@ function averageWeight(){
         if(downcell != undefined){
             downweight = downcell.weight
         }
+        if(rightweight == 0 || leftweight == 0 || upweight == 0 || downweight == 0){
+            continue
+        }
 
+        
 
         cell.weight = (cell.weight + rightweight + leftweight + upweight + downweight)/5
 
@@ -151,6 +155,11 @@ snakeWeight()
 foodWeight()
 averageWeight()
 averageWeight()
+
+//console.log(boardarray)//this is so i can statically update the p5 visualizer with the weights for testing purposes, will comment when not needed
+//console.log(gameState) //this is so i can statically update the p5 visualizer with the food for testing purposes, will comment when not needed
+
+
 return chooseMove()
 
 
