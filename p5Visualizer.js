@@ -131,7 +131,7 @@ let gameState = {
     length: 9,
     shout: '',
     squad: '',
-    customizations: { color: '#1c1fc9', head: 'silly', tail: 'curled' }};
+    customizations: { color: '#1c1fc9', head: 'silly', tail: 'curled' }}
 
 }//paste yyour gamestate here
 
