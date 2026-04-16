@@ -63,7 +63,7 @@ function foodWeight(){
     for(let food of foods){
         for(let cell of boardarray){
             if(cell.x == food.x && cell.y == food.y){
-                cell.weight += .5
+                cell.weight *= 2
             }
         }
     }
@@ -94,10 +94,10 @@ function averageWeight(){
         if(downcell != undefined){
             downweight = downcell.weight
         }
-        if(rightweight == 0 || leftweight == 0 || upweight == 0 || downweight == 0){
+       if(cell.weight==0){
             continue
         }
-
+        
         
 
         cell.weight = (cell.weight + rightweight + leftweight + upweight + downweight)/5
@@ -165,19 +165,6 @@ return chooseMove()
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*export default function move(gameState){

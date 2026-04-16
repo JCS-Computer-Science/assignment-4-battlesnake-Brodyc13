@@ -99,62 +99,7 @@ let boardarray = [{ x: 0, y: 0, weight: 0.75 },
   { x: 8, y: 9, weight: 0.5 },
   { x: 8, y: 10, weight: 0.75 },
   { x: 9, y: 0, weight: 0.75 },];   // <-- paste your boardarray here
-let gameState = {
-    game: {
-    id: '285565ef-cd4f-46d4-962a-7b043392d646',
-    ruleset: { name: 'standard', version: 'v1.2.3', settings: [Object] },
-    map: 'standard',
-    timeout: 500,
-    source: 'custom'
-  },
-  turn: 108,
-  board: {
-    height: 11,
-    width: 11,
-    snakes: [ [Object], [Object] ],
-    food: [ [Object], [Object], [Object], [Object], [Object] ],
-    hazards: []
-  },
-  you: {
-    id: 'gs_tyDbPvyQhM9QpDBWmwPWjt37',
-    name: 'ratsnake',
-    latency: '304',
-    health: 94,
-    body: [
-      [Object], [Object],
-      [Object], [Object],
-      [Object], [Object],
-      [Object], [Object],
-      [Object]
-    ],
-    head: { x: 1, y: 9 },
-    length: 9,
-    shout: '',
-    squad: '',
-    customizations: { color: '#1c1fc9', head: 'silly', tail: 'curled' }}
 
-}//paste yyour gamestate here
-
-let cellSize;
-
-function setup() {
-  createCanvas(600, 600);
-
-  if (!gameState.board) {
-    console.error("Paste gameState + boardarray at the top");
-    noLoop();
-    return;
-  }
-
-  cellSize = width / gameState.board.width;
-}
-
-function draw() {
-  background(20);
-  drawHeatmap();
-  drawSnakes();
-  drawFood();
-}
 
 // ---------------- DRAW HEATMAP ----------------
 
@@ -192,43 +137,5 @@ function drawHeatmap() {
   }
 }
 
-// ---------------- DRAW SNAKES ----------------
 
-function drawSnakes() {
-  fill(0);
 
-  for (let snake of gameState.board.snakes) {
-    for (let seg of snake.body) {
-      rect(
-        seg.x * cellSize,
-        height - (seg.y + 1) * cellSize,
-        cellSize,
-        cellSize
-      );
-    }
-  }
-
-  // highlight YOUR head
-  let head = gameState.you.body[0];
-  fill(255);
-  rect(
-    head.x * cellSize,
-    height - (head.y + 1) * cellSize,
-    cellSize,
-    cellSize
-  );
-}
-
-// ---------------- DRAW FOOD ----------------
-
-function drawFood() {
-  fill(0, 150, 255);
-
-  for (let food of gameState.board.food) {
-    ellipse(
-      food.x * cellSize + cellSize / 2,
-      height - (food.y + 0.5) * cellSize,
-      cellSize * 0.5
-    );
-  }
-}
