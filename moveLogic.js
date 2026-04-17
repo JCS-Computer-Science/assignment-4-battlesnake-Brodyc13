@@ -38,21 +38,39 @@ function snakeWeight(){
         let snake = allSnakes[j].body
         for (let segment of snake) {
             for(let cell of boardarray){
+
+                if(cell.x == segment.x+1 && cell.y == segment.y){
+                    cell.weight *= .75
+                }
+                if(cell.x == segment.x-1 && cell.y == segment.y){
+                    cell.weight *= .75
+                }
+                if(cell.x == segment.x && cell.y == segment.y+1){
+                    cell.weight *= .75
+                }
+                if(cell.x == segment.x && cell.y == segment.y-1){
+                    cell.weight *= .75
+                }
+               
+               
+                if(cell.x==snake[0].x+1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x-1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x && cell.y==snake[0].y-1 
+                    || cell.x== snake[0].x && cell.y==snake[0].y+1
+                    && snake.name != gameState.you.name){
+                        console.log("hit")
+                    if(gameState.you.length-2 > allSnakes[j].length){
+                        cell.weight *= 1.5
+                    } else{
+                        cell.weight *=.5
+                    }
+                } //checks if cells are near the head
+
+
                 if(cell.x == segment.x && cell.y == segment.y){
                     cell.weight =0
                 }
-                if(cell.x == segment.x+1 && cell.y == segment.y){
-                    cell.weight *= .5
-                }
-                if(cell.x == segment.x-1 && cell.y == segment.y){
-                    cell.weight *= .5
-                }
-                if(cell.x == segment.x && cell.y == segment.y+1){
-                    cell.weight *= .5
-                }
-                if(cell.x == segment.x && cell.y == segment.y-1){
-                    cell.weight *= .5
-                }
+               
             }
         }
     }
@@ -60,10 +78,14 @@ function snakeWeight(){
 
 function foodWeight(){
     let foods = gameState.board.food
+    let multiplier =2.5
+    if(gameState.you.health <= 50){
+        multiplier = 3
+    }
     for(let food of foods){
         for(let cell of boardarray){
             if(cell.x == food.x && cell.y == food.y){
-                cell.weight *= 2
+                cell.weight *= multiplier
             }
         }
     }
