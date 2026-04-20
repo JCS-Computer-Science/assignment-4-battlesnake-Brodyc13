@@ -18,9 +18,6 @@ function createboardarray(){
      
 }
     
-
-
-
 function borderWeight(){
     for(let segment of boardarray){
         
@@ -36,9 +33,26 @@ function snakeWeight(){
     for(let j =0; j<allSnakes.length;j++){
  
         let snake = allSnakes[j].body
-        for (let segment of snake) {
-            for(let cell of boardarray){
+         for(let cell of boardarray){
 
+            if(
+                    (cell.x==snake[0].x+1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x-1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x && cell.y==snake[0].y-1 
+                    || cell.x== snake[0].x && cell.y==snake[0].y+1)
+                    && (allSnakes[j].name != gameState.you.name)){
+                        
+                    }
+                    if(gameState.you.length-2 > allSnakes[j].length){
+                        cell.weight *= 1.5
+                    } else{
+                        cell.weight *=.25
+                    }
+
+
+
+        for (let segment of snake) {
+           
                 if(cell.x == segment.x+1 && cell.y == segment.y){
                     cell.weight *= .75
                 }
@@ -51,21 +65,6 @@ function snakeWeight(){
                 if(cell.x == segment.x && cell.y == segment.y-1){
                     cell.weight *= .75
                 }
-               
-               
-                if(cell.x==snake[0].x+1 && cell.y==snake[0].y 
-                    || cell.x== snake[0].x-1 && cell.y==snake[0].y 
-                    || cell.x== snake[0].x && cell.y==snake[0].y-1 
-                    || cell.x== snake[0].x && cell.y==snake[0].y+1
-                    && snake.name != gameState.you.name){
-                        console.log("hit")
-                    if(gameState.you.length-2 > allSnakes[j].length){
-                        cell.weight *= 1.5
-                    } else{
-                        cell.weight *=.5
-                    }
-                } //checks if cells are near the head
-
 
                 if(cell.x == segment.x && cell.y == segment.y){
                     cell.weight =0
@@ -73,6 +72,8 @@ function snakeWeight(){
                
             }
         }
+
+
     }
 }
 
@@ -91,8 +92,63 @@ function foodWeight(){
     }
 }
 
+function floodFill(startX, startY) {
+    let visited = new Set();
+    let stack = [{ x: startX, y: startY }];
+    let count = 0;
+
+    function key(x, y) {
+        return `${x},${y}`;
+    }
+
+    function isBlocked(x, y) {
+        // Out of bounds
+        if (x < 0 || y < 0 || x >= board.width || y >= board.height) {
+            return true;
+        }
+
+        // Check snakes
+        for (let snake of gameState.board.snakes) {
+            for (let segment of snake.body) {
+                if(segment.x===snake.body[snake.length-1].x && segment.y===snake.body[snake.length-1].y){
+                    if(snake.body[snake.length-1].x===x && snake.body[snake.length-1].y===y){
+                        return false
+                    }
+                }
+                
+                if (segment.x === x && segment.y === y) {
+                    return true;
+                }
+                
+            }
+            
+        }
+
+        return false;
+    }
+
+    while (stack.length > 0) {
+        let { x, y } = stack.pop();
+        let k = key(x, y);
+
+        if (visited.has(k)) continue;
+        if (isBlocked(x, y)) continue;
+
+        visited.add(k);
+        count++;
+
+        stack.push({ x: x + 1, y: y });
+        stack.push({ x: x - 1, y: y });
+        stack.push({ x: x, y: y + 1 });
+        stack.push({ x: x, y: y - 1 });
+    }
+
+    return count;
+}
+
 
 function averageWeight(){
+    let newWeights = [];
     for(let cell of boardarray){
         let rightcell = boardarray.find(c => c.x == cell.x+1 && c.y == cell.y)
         let leftcell = boardarray.find(c => c.x == cell.x-1 && c.y == cell.y)
@@ -117,14 +173,23 @@ function averageWeight(){
             downweight = downcell.weight
         }
        if(cell.weight==0){
+        newWeights.push(0)
             continue
         }
         
         
 
-        cell.weight = (cell.weight + rightweight + leftweight + upweight + downweight)/5
+    newWeights.push((cell.weight + rightweight + leftweight + upweight + downweight)/5)
 
     }
+
+    for (let i = 0; i < boardarray.length; i++) {
+    if (boardarray[i].weight !== 0) {
+        boardarray[i].weight = newWeights[i]
+    }
+}
+
+
 }
 
 function chooseMove(){
@@ -146,6 +211,18 @@ function chooseMove(){
     if(downsqaure == undefined){
         downsqaure = {weight:-100}
     }
+
+   let downFlood = floodFill(downsqaure.x,downsqaure.y)/100
+   let upFlood = floodFill(upsqaure.x,upsqaure.y)/100
+   let rightFlood = floodFill(rightsqaure.x,rightsqaure.y)/100
+   let leftFlood = floodFill(leftsqaure.x,leftsqaure.y)/100
+
+   rightsqaure.weight*rightFlood
+   downsqaure.weight*downFlood
+   upsqaure.weight*upFlood
+   leftsqaure.weight*leftFlood
+
+
 
     let maxWeight = Math.max(rightsqaure.weight,leftsqaure.weight,upsqaure.weight,downsqaure.weight)
     
@@ -174,9 +251,10 @@ console.log("turn " + gameState.turn + " max weight" + maxWeight)
 createboardarray()
 borderWeight()
 snakeWeight()
+averageWeight()
 foodWeight()
 averageWeight()
-averageWeight()
+foodWeight()
 
 //console.log(boardarray)//this is so i can statically update the p5 visualizer with the weights for testing purposes, will comment when not needed
 //console.log(gameState) //this is so i can statically update the p5 visualizer with the food for testing purposes, will comment when not needed
