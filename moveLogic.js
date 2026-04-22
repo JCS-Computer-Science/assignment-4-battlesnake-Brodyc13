@@ -1,9 +1,6 @@
 //new move logic using the weighted squares as the logic to determine the best move to make.
 
 
-let p5boardarray = []
-
-
 export default function move(gameState){
     let moveSafety = {
         up: true,
@@ -27,11 +24,20 @@ function borderWeight(){
     for(let segment of boardarray){
         
         if(segment.x == 0 || segment.x == board.width-1 || segment.y == 0 || segment.y == board.height-1){
-            segment.weight *= .75
+            segment.weight *= .87
 
     }
 }
 }
+
+function noMoreStupidTatic(snake, segment){
+    //check if snake is one behind my head and hugging against my body
+    
+
+    //weight that move lower than others
+}
+
+
 
 function snakeWeight(){
     let allSnakes = gameState.board.snakes
@@ -50,10 +56,10 @@ function snakeWeight(){
                     }
                     if(gameState.you.length-2 > allSnakes[j].length){
                         cell.weight *= 1.5
+                        
                     } else{
-                        cell.weight *=.25
+                        cell.weight *= .75
                     }
-
 
 
         for (let segment of snake) {
@@ -74,7 +80,7 @@ function snakeWeight(){
                 if(cell.x == segment.x && cell.y == segment.y){
                     cell.weight =0
                 }
-               
+               noMoreStupidTatic(allSnakes[j], segment)
             }
         }
 
@@ -84,7 +90,7 @@ function snakeWeight(){
 
 function foodWeight(){
     let foods = gameState.board.food
-    let multiplier =2.5
+    let multiplier =2
     if(gameState.you.health <= 50){
         multiplier +=1
     }
@@ -201,6 +207,8 @@ function averageWeight(){
 }
 
 function chooseMove(){
+
+
     let myHead = gameState.you.body[0]
     let rightsqaure = boardarray.find(cell => cell.x == myHead.x+1 && cell.y == myHead.y)
     let leftsqaure = boardarray.find(cell => cell.x == myHead.x-1 && cell.y == myHead.y)
@@ -230,14 +238,12 @@ function chooseMove(){
    upsqaure.weight*=upFlood
    leftsqaure.weight*=leftFlood
 
-   for(let cell of boardarray){
-    p5boardarray.push({x:cell.x,y:cell.y,weight:cell.weight})
-   }
+ 
 
 
     let maxWeight = Math.max(rightsqaure.weight,leftsqaure.weight,upsqaure.weight,downsqaure.weight)
     
-console.log("right" + rightsqaure.weight  + "left" + leftsqaure.weight  + "up" + upsqaure.weight+ "down" + downsqaure.weight)
+
 console.log("turn " + gameState.turn + " max weight" + maxWeight)
 
     if(rightsqaure.weight == maxWeight && moveSafety.right ){
@@ -258,13 +264,46 @@ console.log("turn " + gameState.turn + " max weight" + maxWeight)
     }
 }
 
+function logHeatmap() {
+
+    const maxExpected = 1; 
+
+    for (let y = board.height - 1; y >= 0; y--) {
+        let rowStr = "";
+        for (let x = 0; x < board.width; x++) {
+            let cell = boardarray.find(c => c.x === x && c.y === y);
+            let val = cell ? cell.weight : 0;
+            
+            
+            let intensity = Math.min(Math.max(val, 0), maxExpected) / maxExpected;
+            let colorCode;
+
+            // Gradient: Red (196) -> Yellow (226) -> Green (46)
+            if (intensity < 0.5) {
+                // Red to Yellow transition
+                colorCode = Math.floor(196 + (intensity * 2) * (226 - 196));
+            } else {
+                // Yellow to Green transition
+                let greenIntensity = (intensity - 0.5) * 2;
+                colorCode = Math.floor(226 - (greenIntensity * (226 - 46)));
+            }
+            
+            let color = `\x1b[38;5;${colorCode}m`;
+            rowStr += color + val.toFixed(3).padStart(6) + "\x1b[0m ";
+        }
+        console.log(rowStr);
+    }
+    console.log("------------------------------------------");
+}//AI this for debugging purposes
+
+
 
 createboardarray()
-borderWeight()
 snakeWeight()
-averageWeight()
+borderWeight()
 foodWeight()
 averageWeight()
+logHeatmap()
 
 
 //console.log(boardarray)//this is so i can statically update the p5 visualizer with the weights for testing purposes, will comment when not needed
