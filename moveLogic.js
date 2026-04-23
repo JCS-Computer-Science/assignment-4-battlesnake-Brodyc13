@@ -30,12 +30,7 @@ function borderWeight(){
 }
 }
 
-function noMoreStupidTatic(snake, segment){
-    //check if snake is one behind my head and hugging against my body
-    
 
-    //weight that move lower than others
-}
 
 
 
@@ -52,22 +47,39 @@ function snakeWeight(){
                     || cell.x== snake[0].x && cell.y==snake[0].y-1 
                     || cell.x== snake[0].x && cell.y==snake[0].y+1)
                     && (allSnakes[j].name != gameState.you.name)){
-                        
-                    }
-                    if(gameState.you.length-2 > allSnakes[j].length){
+
+                         if(gameState.you.length-2 > allSnakes[j].length){
                         cell.weight *= 1.5
                         
                     } else{
-                        cell.weight *= .75
+                        cell.weight *= 0.001
                     }
 
 
+
+                    }
+                   
+
+
         for (let segment of snake) {
-           
-                if(cell.x == segment.x+1 && cell.y == segment.y){
-                    cell.weight *= .75
+            if(allSnakes[j].name != gameState.you.name){if(cell.x == segment.x+1 && cell.y == segment.y){
+                    cell.weight *= .4
                 }
                 if(cell.x == segment.x-1 && cell.y == segment.y){
+                    cell.weight *= .4
+                }
+                if(cell.x == segment.x && cell.y == segment.y+1){
+                    cell.weight *= .4
+                }
+                if(cell.x == segment.x && cell.y == segment.y-1){
+                    cell.weight *= .4
+                }
+
+                if(cell.x == segment.x && cell.y == segment.y){
+                    cell.weight =0
+                }}
+            if(allSnakes[j].name == gameState.you.name){
+                    if(cell.x == segment.x-1 && cell.y == segment.y){
                     cell.weight *= .75
                 }
                 if(cell.x == segment.x && cell.y == segment.y+1){
@@ -79,8 +91,8 @@ function snakeWeight(){
 
                 if(cell.x == segment.x && cell.y == segment.y){
                     cell.weight =0
-                }
-               noMoreStupidTatic(allSnakes[j], segment)
+                }}
+           
             }
         }
 
@@ -140,25 +152,45 @@ function floodFill(startX, startY) {
 
         return false;
     }
+    function neighbors(x, y) {
+        return [
+            { x: x + 1, y: y },
+            { x: x - 1, y: y },
+            { x: x, y: y + 1 },
+            { x: x, y: y - 1 }
+        ];
+    }
 
     while (stack.length > 0) {
         let { x, y } = stack.pop();
         let k = key(x, y);
 
-        if (visited.has(k)) continue;
-        if (isBlocked(x, y)) continue;
+        if (visited.has(k)|| isBlocked(x, y)) continue;
 
         visited.add(k);
         count++;
+        let openNeighbors =0
+        let exits =0    
 
-        stack.push({ x: x + 1, y: y });
-        stack.push({ x: x - 1, y: y });
-        stack.push({ x: x, y: y + 1 });
-        stack.push({ x: x, y: y - 1 });
+
+        for(let n of neighbors(x, y)){
+            if(!isBlocked(n.x, n.y) && !visited.has(key(n.x, n.y))){
+                stack.push(n);
+                openNeighbors++
+            }
+        }
+
+            if (openNeighbors <= 2) {
+            exits++;
+        }
+
+       
     }
 
     return count;
 }
+
+
 
 
 function averageWeight(){
@@ -265,35 +297,39 @@ console.log("turn " + gameState.turn + " max weight" + maxWeight)
 }
 
 function logHeatmap() {
-
-    const maxExpected = 1; 
-
-    for (let y = board.height - 1; y >= 0; y--) {
-        let rowStr = "";
-        for (let x = 0; x < board.width; x++) {
-            let cell = boardarray.find(c => c.x === x && c.y === y);
-            let val = cell ? cell.weight : 0;
-            
-            
-            let intensity = Math.min(Math.max(val, 0), maxExpected) / maxExpected;
-            let colorCode;
-
-            // Gradient: Red (196) -> Yellow (226) -> Green (46)
-            if (intensity < 0.5) {
-                // Red to Yellow transition
-                colorCode = Math.floor(196 + (intensity * 2) * (226 - 196));
-            } else {
-                // Yellow to Green transition
-                let greenIntensity = (intensity - 0.5) * 2;
-                colorCode = Math.floor(226 - (greenIntensity * (226 - 46)));
-            }
-            
-            let color = `\x1b[38;5;${colorCode}m`;
-            rowStr += color + val.toFixed(3).padStart(6) + "\x1b[0m ";
-        }
-        console.log(rowStr);
-    }
     console.log("------------------------------------------");
+    const maxExpected = 1.2; 
+
+   for (let y = board.height - 1; y >= 0; y--) {
+    let rowStr = "";
+    for (let x = 0; x < board.width; x++) {
+        let cell = boardarray.find(c => c.x === x && c.y === y);
+        let val = cell ? cell.weight : 0;
+        let intensity = Math.min(Math.max(val, 0), maxExpected) / maxExpected;
+
+        let r, g, b;
+
+        if (intensity < 0.5) {
+            // Red (255,0,0) to Yellow (255,255,0)
+            let t = intensity * 2;
+            r = 255;
+            g = Math.floor(t * 255);
+            b = 0;
+        } else {
+            // Yellow (255,255,0) to Green (0,255,0)
+            let t = (intensity - 0.5) * 2;
+            r = Math.floor(255 * (1 - t));
+            g = 255;
+            b = 0;
+        }
+
+        // Use ANSI TrueColor escape code: \x1b[38;2;R;G;Bm
+        let color = `\x1b[38;2;${r};${g};${b}m`;
+        rowStr += color + val.toFixed(3).padStart(6) + "\x1b[0m ";
+    }
+    console.log(rowStr);
+}
+    
 }//AI this for debugging purposes
 
 
