@@ -30,34 +30,29 @@ function borderWeight(){
 }
 }
 
+function hazardWeight(){
+    let hazards = gameState.board.hazards
+    for(let hazard of hazards){
+        for(let cell of boardarray){
+            if(cell.x == hazard.x && cell.y == hazard.y){
+                cell.weight *= .5
+            }
+        }
+    }
+}
 
 
 
 
 function snakeWeight(){
+   let snakes = gameState.board.snakes
     let allSnakes = gameState.board.snakes
     for(let j =0; j<allSnakes.length;j++){
  
         let snake = allSnakes[j].body
          for(let cell of boardarray){
 
-            if(
-                    (cell.x==snake[0].x+1 && cell.y==snake[0].y 
-                    || cell.x== snake[0].x-1 && cell.y==snake[0].y 
-                    || cell.x== snake[0].x && cell.y==snake[0].y-1 
-                    || cell.x== snake[0].x && cell.y==snake[0].y+1)
-                    && (allSnakes[j].name != gameState.you.name)){
-
-                         if(gameState.you.length-2 > allSnakes[j].length){
-                        cell.weight *= 1.5
-                        
-                    } else{
-                        cell.weight *= 0.001
-                    }
-
-
-
-                    }
+            
                    
 
 
@@ -94,6 +89,25 @@ function snakeWeight(){
                 }}
            
             }
+
+            if(
+                    (cell.x==snake[0].x+1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x-1 && cell.y==snake[0].y 
+                    || cell.x== snake[0].x && cell.y==snake[0].y-1 
+                    || cell.x== snake[0].x && cell.y==snake[0].y+1)
+                    && (allSnakes[j].name != gameState.you.name)){
+
+                         if(gameState.you.length-2 > allSnakes[j].length){
+                        cell.weight *= 3
+                        
+                    } else{
+                        cell.weight *= 0.001
+                    }
+
+
+
+                    }
+
         }
 
 
@@ -101,6 +115,8 @@ function snakeWeight(){
 }
 
 function foodWeight(){
+    let myhead = gameState.you.body[0]
+    let hazards = gameState.board.hazards
     let foods = gameState.board.food
     let multiplier =2
     if(gameState.you.health <= 50){
@@ -109,6 +125,13 @@ function foodWeight(){
     if(gameState.turn >100){
         multiplier/=2
     }
+    for(let hazard of hazards){
+        if(myhead.x == hazard.x && myhead.y == hazard.y){
+            multiplier *= 2
+            
+        }
+    }
+    
     for(let food of foods){
         for(let cell of boardarray){
             if(cell.x == food.x && cell.y == food.y){
@@ -335,6 +358,7 @@ function logHeatmap() {
 
 
 createboardarray()
+hazardWeight()
 snakeWeight()
 borderWeight()
 foodWeight()
