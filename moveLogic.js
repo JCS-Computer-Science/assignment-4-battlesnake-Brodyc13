@@ -39,6 +39,7 @@ function hazardWeight(){
             }
         }
     }
+        
 }
 
 
@@ -99,6 +100,7 @@ function snakeWeight(){
 
                          if(gameState.you.length-2 > allSnakes[j].length){
                         cell.weight *= 3
+                        
                         
                     } else{
                         cell.weight *= 0.001
@@ -213,8 +215,23 @@ function floodFill(startX, startY) {
     return count;
 }
 
+function AstarPathfinding(targetX, targetY) {
+    let myHead = gameState.you.body[0];
 
+    let neighbors = [
+        { x: myHead.x + 1, y: myHead.y },
+        { x: myHead.x - 1, y: myHead.y },
+        { x: myHead.x, y: myHead.y + 1 },
+        { x: myHead.x, y: myHead.y - 1 }
+    ];
+    for (let neighbor of neighbors) {
+        heuristic(neighbor.x, neighbor.y)
+    }
+    function heuristic(x, y) {
+            return Math.abs(x - targetX) + Math.abs(y - targetY);
+        }
 
+}
 
 function averageWeight(){
     let newWeights = [];
@@ -363,6 +380,7 @@ snakeWeight()
 borderWeight()
 foodWeight()
 averageWeight()
+foodWeight()
 logHeatmap()
 
 
