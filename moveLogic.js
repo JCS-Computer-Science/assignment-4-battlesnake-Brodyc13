@@ -24,7 +24,7 @@ function borderWeight(){
     for(let segment of boardarray){
         
         if(segment.x == 0 || segment.x == board.width-1 || segment.y == 0 || segment.y == board.height-1){
-            segment.weight *= .87
+            segment.weight *= .6
 
     }
 }
@@ -224,14 +224,36 @@ function AstarPathfinding(targetX, targetY) {
         { x: myHead.x, y: myHead.y + 1 },
         { x: myHead.x, y: myHead.y - 1 }
     ];
-    for (let neighbor of neighbors) {
-        heuristic(neighbor.x, neighbor.y)
-    }
     function heuristic(x, y) {
             return Math.abs(x - targetX) + Math.abs(y - targetY);
         }
 
-}
+
+
+    for (let neighbor of neighbors) {
+       
+        neighbor.h=heuristic(neighbor.x, neighbor.y)
+        neighbor.f = floodFill(neighbor.x, neighbor.y)
+
+        neighbor.finalScore= neighbor.h - neighbor.f
+
+    }
+    
+let best = neighbors.reduce((bestSoFar, current) => {
+    if (current.finalScore < bestSoFar.finalScore) {
+        return current;
+    } else {
+        return bestSoFar;
+    }
+});
+        
+
+
+
+};
+
+
+
 
 function averageWeight(){
     let newWeights = [];
@@ -278,6 +300,8 @@ function averageWeight(){
 
 }
 
+
+
 function chooseMove(){
 
 
@@ -304,6 +328,34 @@ function chooseMove(){
    let upFlood = floodFill(upsqaure.x,upsqaure.y)/100
    let rightFlood = floodFill(rightsqaure.x,rightsqaure.y)/100
    let leftFlood = floodFill(leftsqaure.x,leftsqaure.y)/100
+    let direction
+
+   if(gameState.turn <100)   {
+     direction = AstarPathfinding(gameState.board.food[0].x,gameState.board.food[0].y)
+   } else if(gameState.turn >=100 && gameState.you.health < 40){
+    direction = AstarPathfinding(gameState.board.food[0].x,gameState.board.food[0].y)
+   } else if(gameState.turn >=100 && gameState.you.health >= 40){
+    direction = AstarPathfinding(gameState.you.body[gameState.you.body.length-1].x,gameState.you.body[gameState.you.body.length-1].y)
+   }
+   
+
+
+
+   
+    if(direction == "right"){
+        rightsqaure.weight *= 1.5
+    }
+    if(direction == "left"){
+        leftsqaure.weight *= 1.5
+    }
+    if(direction == "up"){
+        upsqaure.weight *= 1.5
+    }
+    if(direction == "down"){
+        downsqaure.weight *= 1.5
+    }
+
+
 
    rightsqaure.weight*=rightFlood
    downsqaure.weight*=downFlood
@@ -314,7 +366,7 @@ function chooseMove(){
 
 
     let maxWeight = Math.max(rightsqaure.weight,leftsqaure.weight,upsqaure.weight,downsqaure.weight)
-    
+    logHeatmap()
 
 console.log("turn " + gameState.turn + " max weight" + maxWeight)
 
@@ -378,13 +430,11 @@ createboardarray()
 hazardWeight()
 snakeWeight()
 borderWeight()
-foodWeight()
 averageWeight()
 foodWeight()
-logHeatmap()
 
 
-//console.log(boardarray)//this is so i can statically update the p5 visualizer with the weights for testing purposes, will comment when not needed
+
 
 
 
