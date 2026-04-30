@@ -26,7 +26,7 @@ export default function move(gameState) {
         segment.y == 0 ||
         segment.y == board.height - 1
       ) {
-        segment.weight *= 0.6;
+        segment.weight *= 0.9;
       }
     }
   }
@@ -46,7 +46,9 @@ export default function move(gameState) {
     let snakes = gameState.board.snakes;
     let allSnakes = gameState.board.snakes;
     for (let j = 0; j < allSnakes.length; j++) {
-      let snake = allSnakes[j].body;
+     let snake = snakes[j].body;
+      
+      
       for (let cell of boardarray) {
         for (let segment of snake) {
           if (allSnakes[j].name != gameState.you.name) {
@@ -94,7 +96,7 @@ export default function move(gameState) {
           if (gameState.you.length - 2 > allSnakes[j].length) {
             cell.weight *= 3;
           } else {
-            cell.weight *= 0.001;
+            cell.weight *= 0.02;
           }
         }
       }
@@ -144,6 +146,10 @@ export default function move(gameState) {
 
       // Check snakes
       for (let snake of gameState.board.snakes) {
+        
+        
+
+
         for (let segment of snake.body) {
           if (
             segment.x === snake.body[snake.length - 1].x &&
@@ -209,6 +215,21 @@ export default function move(gameState) {
       { x: myHead.x, y: myHead.y + 1 },
       { x: myHead.x, y: myHead.y - 1 },
     ];
+
+    function dangerCheck(x,y){
+
+      for(let snake of gameState.board.snakes){
+        let head = snake.body[0];
+        if(head.x+1==x && head.y==y || head.x-1==x && head.y==y || head.x==x && head.y+1==y || head.x==x && head.y-1==y){
+          return true;
+        }
+      }
+      return false;
+    }
+
+
+
+
     function heuristic(x, y) {
       return Math.abs(x - targetX) + Math.abs(y - targetY);
     }
@@ -216,8 +237,11 @@ export default function move(gameState) {
     for (let neighbor of neighbors) {
       neighbor.h = heuristic(neighbor.x, neighbor.y);
       neighbor.f = floodFill(neighbor.x, neighbor.y);
-
-      neighbor.finalScore = neighbor.h - neighbor.f;
+      if(dangerCheck(neighbor.x, neighbor.y)){
+        neighbor.f*=0.03;
+      }
+      
+      neighbor.finalScore = neighbor.h - (neighbor.f*0.05);
     }
 
     let best = neighbors.reduce((bestSoFar, current) => {
@@ -227,6 +251,11 @@ export default function move(gameState) {
         return bestSoFar;
       }
     });
+
+    if (best.x > myHead.x) return "right";
+    if (best.x < myHead.x) return "left";
+    if (best.y > myHead.y) return "up"; 
+  if (best.y < myHead.y) return "down";
   }
 
   function averageWeight() {
@@ -308,20 +337,14 @@ export default function move(gameState) {
     let direction;
 
     if (gameState.turn < 100) {
-      direction = AstarPathfinding(
-        gameState.board.food[0].x,
-        gameState.board.food[0].y,
-      );
+      direction = AstarPathfinding( gameState.board.food[0].x, gameState.board.food[0].y,);
     } else if (gameState.turn >= 100 && gameState.you.health < 40) {
       direction = AstarPathfinding(
         gameState.board.food[0].x,
         gameState.board.food[0].y,
       );
     } else if (gameState.turn >= 100 && gameState.you.health >= 40) {
-      direction = AstarPathfinding(
-        gameState.you.body[gameState.you.body.length - 1].x,
-        gameState.you.body[gameState.you.body.length - 1].y,
-      );
+      direction = AstarPathfinding( gameState.you.body[gameState.you.body.length - 1].x, gameState.you.body[gameState.you.body.length - 1].y,);
     }
 
     if (direction == "right") {
