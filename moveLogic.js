@@ -147,7 +147,11 @@ export default function move(gameState) {
       // Check snakes
       for (let snake of gameState.board.snakes) {
         
-        
+        if(snake.name != gameState.you.name){
+          neighbors(x,y).forEach(element => {
+            
+          });
+        }
 
 
         for (let segment of snake.body) {
@@ -166,6 +170,10 @@ export default function move(gameState) {
           if (segment.x === x && segment.y === y) {
             return true;
           }
+          
+
+
+
         }
       }
 
@@ -348,16 +356,16 @@ export default function move(gameState) {
     }
 
     if (direction == "right") {
-      rightsqaure.weight *= 1.5;
+      rightsqaure.weight *= 1.2;
     }
     if (direction == "left") {
-      leftsqaure.weight *= 1.5;
+      leftsqaure.weight *= 1.2;
     }
     if (direction == "up") {
-      upsqaure.weight *= 1.5;
+      upsqaure.weight *= 1.2;
     }
     if (direction == "down") {
-      downsqaure.weight *= 1.5;
+      downsqaure.weight *= 1.2;
     }
 
     rightsqaure.weight *= rightFlood;
@@ -426,6 +434,7 @@ export default function move(gameState) {
   snakeWeight();
   borderWeight();
   averageWeight();
+  
   foodWeight();
 
   return chooseMove();
