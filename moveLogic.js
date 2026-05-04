@@ -111,6 +111,9 @@ export default function move(gameState) {
     if (gameState.you.health <= 50) {
       multiplier += 1;
     }
+     if(gameState.you.health <= 10){
+      multiplier += 3;
+     }
     if (gameState.turn > 100) {
       multiplier /= 2;
     }
@@ -344,28 +347,46 @@ export default function move(gameState) {
     let leftFlood = floodFill(leftsqaure.x, leftsqaure.y) / 100;
     let direction;
 
-    if (gameState.turn < 100) {
-      direction = AstarPathfinding( gameState.board.food[0].x, gameState.board.food[0].y,);
+    
+    function closestFood(head, food) {
+      let closest = null;
+      let minDist = Infinity;
+
+      for (let f of food) {
+        let dist = Math.abs(head.x - f.x) + Math.abs(head.y - f.y);
+        if (dist < minDist) {
+          minDist = dist;
+          closest = f;
+        }
+      }
+
+      return closest;
+    }
+
+    let target = closestFood(gameState.you.body[0], gameState.board.food);
+
+    if (gameState.turn < 100 ) {
+      direction = AstarPathfinding( target.x, target.y,);
     } else if (gameState.turn >= 100 && gameState.you.health < 40) {
       direction = AstarPathfinding(
-        gameState.board.food[0].x,
-        gameState.board.food[0].y,
+        target.x,
+        target.y,
       );
     } else if (gameState.turn >= 100 && gameState.you.health >= 40) {
       direction = AstarPathfinding( gameState.you.body[gameState.you.body.length - 1].x, gameState.you.body[gameState.you.body.length - 1].y,);
     }
 
     if (direction == "right") {
-      rightsqaure.weight *= 1.2;
+      rightsqaure.weight *= 1.4;
     }
     if (direction == "left") {
-      leftsqaure.weight *= 1.2;
+      leftsqaure.weight *= 1.4;
     }
     if (direction == "up") {
-      upsqaure.weight *= 1.2;
+      upsqaure.weight *= 1.4;
     }
     if (direction == "down") {
-      downsqaure.weight *= 1.2;
+      downsqaure.weight *= 1.4;
     }
 
     rightsqaure.weight *= rightFlood;
